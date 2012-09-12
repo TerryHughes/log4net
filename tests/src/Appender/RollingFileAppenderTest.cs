@@ -1835,6 +1835,33 @@ namespace log4net.Tests.Appender
 		}
 
 		/// <summary>
+		/// Tests that <see cref="RollingFileAppender.PreserveLogFileNameExtension"/>
+		/// is used for a <see cref="RollingFileAppender.RollingMode.Date"/> configuration
+		/// </summary>
+		[Test]
+		// LOG4NET-337
+		public void TestInitializeRollBackups5()
+		{
+			RollingFileAppender appender = new RollingFileAppender();
+			appender.File = c_fileName;
+			appender.RollingStyle = RollingFileAppender.RollingMode.Date;
+			appender.PreserveLogFileNameExtension = true;
+
+			DateTime yesterday = DateTime.Now.AddDays(-1);
+
+			CreateFile(0);
+			new FileInfo(appender.File).LastWriteTime = yesterday;
+
+			appender.ActivateOptions();
+
+			string fileName = (string)Utils.InvokeMethod(appender, "CombinePath", appender.File, yesterday.ToString(appender.DatePattern, System.Globalization.DateTimeFormatInfo.InvariantInfo));
+
+			Assert.IsTrue(File.Exists(fileName));
+
+			File.Delete(fileName);
+		}
+
+		/// <summary>
 		/// 
 		/// </summary>
 		[Test, Ignore("Not Implemented: Want to test counted files limited up, to see that others are ?? ignored? deleted?")]
